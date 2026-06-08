@@ -103,7 +103,7 @@ func TestCapturePaneUsesNegativeStartForLineLimit(t *testing.T) {
 	if out != "tail" {
 		t.Fatalf("output = %q, want tail", out)
 	}
-	wantArgs := []string{"capture-pane", "-p", "-t", "codex/task", "-S", "-20"}
+	wantArgs := []string{"capture-pane", "-p", "-t", "codex/task", "-S", "-20", "-E", "-1"}
 	if !reflect.DeepEqual(runner.calls[0].args, wantArgs) {
 		t.Fatalf("args = %v, want %v", runner.calls[0].args, wantArgs)
 	}

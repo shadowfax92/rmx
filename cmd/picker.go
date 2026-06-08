@@ -25,7 +25,7 @@ func pickSessions(ctx context.Context, sessions []rmux.Session, prompt string, m
 		"--reverse",
 		"--delimiter", "\t",
 		"--with-nth", "2..",
-		"--preview", "rmux capture-pane -p -t {1} -S -80 2>/dev/null",
+		"--preview", "rmux capture-pane -p -t {1} -S -80 -E -1 2>/dev/null",
 		"--preview-window", "right:60%",
 	}
 	if multi {

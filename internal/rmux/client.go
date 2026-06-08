@@ -58,7 +58,7 @@ func (c Client) ListSessions(ctx context.Context) ([]Session, error) {
 func (c Client) CapturePane(ctx context.Context, name string, lineLimit int) (string, error) {
 	args := []string{"capture-pane", "-p", "-t", name}
 	if lineLimit > 0 {
-		args = append(args, "-S", "-"+strconv.Itoa(lineLimit))
+		args = append(args, "-S", "-"+strconv.Itoa(lineLimit), "-E", "-1")
 	}
 	return c.runner().Run(ctx, c.binary(), args...)
 }
