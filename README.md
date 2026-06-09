@@ -23,7 +23,7 @@
 
 ## Install
 
-Requires Go 1.21+, `rmux`, and [fzf](https://github.com/junegunn/fzf).
+Requires Go 1.21+, `rmux`, and [fzf](https://github.com/junegunn/fzf). [fish](https://fishshell.com) is optional, for the `rmx` shortcut.
 
 ```sh
 git clone <repo-url> wrapux
@@ -31,7 +31,7 @@ cd wrapux
 make install
 ```
 
-`make install` builds `wrapux`, installs it to `~/bin/wrapux`, and signs it on macOS.
+`make install` builds `wrapux`, installs it to `~/bin/wrapux`, signs it on macOS, and installs the fish `rmx` helper to `~/.config/fish/functions/rmx.fish`.
 
 ## Quick Start
 
@@ -40,6 +40,20 @@ wrapux ls
 wrapux attach
 wrapux capture -l 20
 wrapux rm
+```
+
+## Fish shortcut (`rmx`)
+
+`rmx` is a fish wrapper that maps short verbs onto `wrapux`. `make install` drops it at `~/.config/fish/functions/rmx.fish` (or run `make fish` on its own). Bare `rmx` lists; anything it doesn't recognize forwards straight to `wrapux`.
+
+```fish
+rmx              # list sessions (same as wrapux ls)
+rmx l            # list     (l / ls / list)
+rmx a            # attach   (a / attach)
+rmx c            # capture  (c / cap / capture)
+rmx k            # remove   (rm / k / kill / remove)
+rmx c -l 20      # flags and session names pass through
+rmx --help       # forwarded to wrapux
 ```
 
 ## Commands
@@ -97,8 +111,9 @@ The default line count is 80. Use `-l 20` or `--lines 20` to override it.
 ```sh
 make build
 make test
-make install
-make uninstall
+make install      # binary + rmx fish helper
+make uninstall    # removes both
+make fish         # install just the rmx fish helper
 make clean
 ```
 
