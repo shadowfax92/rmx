@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"wrapux/internal/rmux"
+	"rmx/internal/rmux"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
@@ -76,7 +76,7 @@ func renderCaptures(ctx context.Context, out io.Writer, sessions []rmux.Session,
 		if idx > 0 {
 			fmt.Fprintln(out)
 		}
-		fmt.Fprintln(out, headerStyle.Render("wrapux capture: "+session.Name))
+		fmt.Fprintln(out, headerStyle.Render("rmx capture: "+session.Name))
 		if !session.LastActiveAt.IsZero() {
 			fmt.Fprintln(out, metaStyle.Render("last active "+relativeAge(session.LastActiveAt, time.Now())))
 		}

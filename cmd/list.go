@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"wrapux/internal/rmux"
+	"rmx/internal/rmux"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"

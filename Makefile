@@ -1,13 +1,13 @@
 PREFIX ?= $(HOME)/bin
 VERSION ?= 0.1.0
-BINARY := wrapux
+BINARY := rmx
 FISH_FUNCTIONS ?= $(HOME)/.config/fish/functions
 FISH_FUNCTION := rmx.fish
 
 .PHONY: build install uninstall fish test clean
 
 build:
-	go build -ldflags "-X wrapux/cmd.Version=$(VERSION)" -o $(BINARY) .
+	go build -ldflags "-X rmx/cmd.Version=$(VERSION)" -o $(BINARY) .
 
 install: build fish
 	mkdir -p $(PREFIX)

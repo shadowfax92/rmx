@@ -1,6 +1,6 @@
 package main
 
-import "wrapux/cmd"
+import "rmx/cmd"
 
 func main() {
 	cmd.Execute()

@@ -95,7 +95,7 @@ const usageTemplate = `{{helpHeader "Usage:"}}{{if .Runnable}}
 `
 
 var rootCmd = &cobra.Command{
-	Use:           "wrapux",
+	Use:           "rmx",
 	Short:         "fzf-powered rmux session wrapper",
 	Version:       Version,
 	SilenceUsage:  true,
@@ -115,6 +115,7 @@ func init() {
 	rootCmd.SetUsageTemplate(usageTemplate)
 }
 
+// Execute runs the CLI root command and treats cancellation as a clean exit.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		if errors.Is(err, ErrCancelled) {

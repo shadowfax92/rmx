@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"wrapux/internal/rmux"
+	"rmx/internal/rmux"
 
 	"github.com/charmbracelet/lipgloss"
 )

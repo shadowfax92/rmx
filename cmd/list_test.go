@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"wrapux/internal/rmux"
+	"rmx/internal/rmux"
 )
 
 func TestRenderSessionTableIncludesLastActiveTimestamp(t *testing.T) {
