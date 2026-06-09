@@ -1,4 +1,4 @@
-function rmx --description 'fzf-powered rmux session wrapper (wrapux)'
+function rmx --description 'rmx: short-verb wrapper around wrapux'
     if test (count $argv) -eq 0
         wrapux ls
         return
