@@ -1,4 +1,4 @@
-module wrapux
+module rmx
 
 go 1.21
 

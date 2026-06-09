@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"wrapux/internal/rmux"
+	"rmx/internal/rmux"
 )
 
 func TestRenderCapturesSeparatesEachSession(t *testing.T) {
@@ -32,7 +32,7 @@ func TestRenderCapturesSeparatesEachSession(t *testing.T) {
 			t.Fatalf("rendered output %q missing %q", got, want)
 		}
 	}
-	if strings.Count(got, "wrapux capture") != 2 {
+	if strings.Count(got, "rmx capture") != 2 {
 		t.Fatalf("rendered output = %q, want two capture headers", got)
 	}
 }

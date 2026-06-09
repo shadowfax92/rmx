@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"wrapux/internal/rmux"
+	"rmx/internal/rmux"
 )
 
 func TestParseFzfTargetsReturnsHiddenFirstField(t *testing.T) {

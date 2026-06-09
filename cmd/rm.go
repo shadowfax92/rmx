@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"wrapux/internal/rmux"
+	"rmx/internal/rmux"
 )
 
 func init() {

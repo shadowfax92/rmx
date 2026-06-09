@@ -1,6 +1,6 @@
-function rmx --description 'rmx: short-verb wrapper around wrapux'
+function rmx --description 'rmx: short-verb shortcuts'
     if test (count $argv) -eq 0
-        wrapux ls
+        command rmx ls
         return
     end
 
@@ -8,14 +8,14 @@ function rmx --description 'rmx: short-verb wrapper around wrapux'
 
     switch $argv[1]
         case l ls list
-            wrapux ls $rest
+            command rmx ls $rest
         case a attach
-            wrapux attach $rest
+            command rmx attach $rest
         case c cap capture
-            wrapux capture $rest
+            command rmx capture $rest
         case rm k kill remove
-            wrapux rm $rest
+            command rmx rm $rest
         case '*'
-            wrapux $argv
+            command rmx $argv
     end
 end
