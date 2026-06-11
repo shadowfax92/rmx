@@ -18,15 +18,15 @@ const defaultCaptureLines = 80
 var captureLines int
 
 func init() {
-	captureCmd.Flags().IntVarP(&captureLines, "lines", "l", defaultCaptureLines, "Capture the last N lines from each session")
+	captureCmd.Flags().IntVarP(&captureLines, "lines", "l", defaultCaptureLines, "Print the last N lines from each session")
 	rootCmd.AddCommand(captureCmd)
 }
 
 var captureCmd = &cobra.Command{
-	Use:         "capture [session...]",
-	Aliases:     []string{"cap"},
+	Use:         "cat [session...]",
+	Aliases:     []string{"capture", "cap"},
 	Annotations: map[string]string{"group": "Output:"},
-	Short:       "Capture output from rmux sessions",
+	Short:       "Print output from rmux sessions",
 	Args:        cobra.ArbitraryArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client := rmux.DefaultClient()
@@ -50,7 +50,7 @@ func sessionsForCapture(ctx context.Context, client rmux.Client, args []string) 
 		byName[session.Name] = session
 	}
 	if len(args) == 0 {
-		targets, err := pickSessions(ctx, sessions, "capture > ", true)
+		targets, err := pickSessions(ctx, sessions, "cat > ", true)
 		if err != nil {
 			return nil, err
 		}
@@ -76,7 +76,7 @@ func renderCaptures(ctx context.Context, out io.Writer, sessions []rmux.Session,
 		if idx > 0 {
 			fmt.Fprintln(out)
 		}
-		fmt.Fprintln(out, headerStyle.Render("rmx capture: "+session.Name))
+		fmt.Fprintln(out, headerStyle.Render("rmx cat: "+session.Name))
 		if !session.LastActiveAt.IsZero() {
 			fmt.Fprintln(out, metaStyle.Render("last active "+relativeAge(session.LastActiveAt, time.Now())))
 		}

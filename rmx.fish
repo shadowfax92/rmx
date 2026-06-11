@@ -11,8 +11,8 @@ function rmx --description 'rmx: short-verb shortcuts'
             command rmx ls $rest
         case a attach
             command rmx attach $rest
-        case c cap capture
-            command rmx capture $rest
+        case c cat cap capture
+            command rmx cat $rest
         case rm k kill remove
             command rmx rm $rest
         case '*'

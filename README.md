@@ -6,17 +6,17 @@
 
 **An fzf-powered wrapper for rmux sessions.**
 
-*List, attach, remove, and capture rmux sessions without remembering the flags.*
+*List, attach, remove, and print rmux session output without remembering the flags.*
 
 </div>
 
-`rmx` keeps the rmux command surface close by: it lists sessions with last activity, opens fzf for interactive selection, removes selected sessions, and prints clearly separated captures from one or more sessions.
+`rmx` keeps the rmux command surface close by: it lists sessions with last activity, opens fzf for interactive selection, removes selected sessions, and prints clearly separated output from one or more sessions.
 
 - **Session inventory** - `rmx ls` shows every rmux session, window count, exact last-active time, relative age, created time, and attach state.
 - **Fast attach** - `rmx attach` opens an fzf picker with a live capture preview, then attaches to the selected session.
 - **Multi-remove** - `rmx rm` opens multi-select fzf when no session names are provided.
-- **Multi-capture** - `rmx capture` selects sessions with fzf and prints each output under a colored separator.
-- **Line limits** - `rmx capture -l 20` captures the last 20 lines from each selected session.
+- **Multi-cat** - `rmx cat` selects sessions with fzf and prints each output under a colored separator.
+- **Line limits** - `rmx cat -l 20` prints the last 20 lines from each selected session.
 - **Plain delegation** - rmx calls rmux directly; it does not keep state of its own.
 
 ---
@@ -38,7 +38,7 @@ make install
 ```sh
 rmx ls
 rmx attach
-rmx capture -l 20
+rmx cat -l 20
 rmx rm
 ```
 
@@ -50,7 +50,7 @@ The optional fish function adds short verbs on top of the `rmx` binary. `make in
 rmx              # list sessions (same as rmx ls)
 rmx l            # list     (l / ls / list)
 rmx a            # attach   (a / attach)
-rmx c            # capture  (c / cap / capture)
+rmx c            # cat      (c / cat / cap / capture)
 rmx k            # remove   (rm / k / kill / remove)
 rmx c -l 20      # flags and session names pass through
 rmx --help       # forwarded to the binary
@@ -89,16 +89,17 @@ rmx kill
 
 Without names, `rmx rm` opens fzf in multi-select mode. Selected sessions are removed with `rmux kill-session -t =<session>`.
 
-### Capture
+### Cat
 
 ```sh
+rmx cat
+rmx cat codex/feat-example claude/review
+rmx cat -l 20
 rmx capture
-rmx capture codex/feat-example claude/review
-rmx capture -l 20
 rmx cap
 ```
 
-Without names, `rmx capture` opens fzf in multi-select mode. Each session is captured with:
+Without names, `rmx cat` opens fzf in multi-select mode. Each session is captured with:
 
 ```sh
 rmux capture-pane -p -t <session> -S -<lines> -E -1
