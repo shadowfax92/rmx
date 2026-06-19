@@ -13,6 +13,10 @@ function rmx --description 'rmx: short-verb shortcuts'
             command rmx attach $rest
         case c cat cap capture
             command rmx cat $rest
+        case s send
+            command rmx send $rest
+        case text enter
+            command rmx send $argv
         case rm k kill remove
             command rmx rm $rest
         case '*'

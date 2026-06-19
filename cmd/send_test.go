@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"os"
 	"strings"
 	"testing"
 
@@ -72,6 +73,41 @@ func TestRootHelpIncludesInputGroup(t *testing.T) {
 	}
 	if !strings.Contains(help, "send") {
 		t.Fatalf("help = %q, want send command", help)
+	}
+}
+
+func TestFishShortcutsForwardSendVerbs(t *testing.T) {
+	content, err := os.ReadFile("../rmx.fish")
+	if err != nil {
+		t.Fatalf("ReadFile(rmx.fish) returned error: %v", err)
+	}
+	text := string(content)
+
+	if !strings.Contains(text, "case s send") {
+		t.Fatalf("fish helper missing send verb cases: %s", text)
+	}
+	if !strings.Contains(text, "command rmx send $rest") {
+		t.Fatalf("fish helper should forward send verbs to rmx send: %s", text)
+	}
+	if !strings.Contains(text, "case text enter") {
+		t.Fatalf("fish helper missing text/enter verb cases: %s", text)
+	}
+	if !strings.Contains(text, "command rmx send $argv") {
+		t.Fatalf("fish helper should forward text/enter verbs to rmx send with verb: %s", text)
+	}
+}
+
+func TestReadmeDocumentsSendInput(t *testing.T) {
+	content, err := os.ReadFile("../README.md")
+	if err != nil {
+		t.Fatalf("ReadFile(README.md) returned error: %v", err)
+	}
+	text := string(content)
+
+	for _, want := range []string{"rmx send text -t codex/feat-example", "rmx send enter -t codex/feat-example"} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("README missing %q", want)
+		}
 	}
 }
 
