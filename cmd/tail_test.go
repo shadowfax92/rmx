@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"context"
+	"errors"
 	"os"
 	"strings"
 	"testing"
@@ -23,6 +24,9 @@ func TestTailCommandIsRegisteredInOutputGroup(t *testing.T) {
 	}
 	if cmd.Annotations["group"] != "Output:" {
 		t.Fatalf("group = %q, want Output:", cmd.Annotations["group"])
+	}
+	if !contains(cmd.Aliases, "follow") {
+		t.Fatalf("aliases = %v, want follow", cmd.Aliases)
 	}
 }
 
@@ -86,6 +90,23 @@ func TestTailStatePrefixesMultilineOutputPerSession(t *testing.T) {
 	}
 }
 
+func TestTailStateReturnsWriteErrors(t *testing.T) {
+	sessions := []rmux.Session{{Name: "codex/task"}}
+	captures := map[string][]string{
+		"codex/task": {"old", "old\nnew"},
+	}
+	capture := sequenceCapture(captures)
+
+	state, err := newTailState(context.Background(), sessions, capture)
+	if err != nil {
+		t.Fatalf("newTailState returned error: %v", err)
+	}
+	err = state.poll(context.Background(), failingWriter{}, capture)
+	if !errors.Is(err, errFailingWrite) {
+		t.Fatalf("poll error = %v, want failing write", err)
+	}
+}
+
 func TestTailPrefixColorsAreDeterministicAndDistinct(t *testing.T) {
 	if tailPrefixColor(0) != tailPrefixColor(len(tailPrefixColors)) {
 		t.Fatalf("color cycle did not wrap deterministically")
@@ -122,6 +143,14 @@ func TestReadmeDocumentsTail(t *testing.T) {
 			t.Fatalf("README missing %q", want)
 		}
 	}
+}
+
+var errFailingWrite = errors.New("failing write")
+
+type failingWriter struct{}
+
+func (failingWriter) Write(p []byte) (int, error) {
+	return 0, errFailingWrite
 }
 
 func sequenceCapture(captures map[string][]string) func(context.Context, string) (string, error) {

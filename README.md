@@ -134,7 +134,6 @@ The default line count is 80. Use `-l 20` or `--lines 20` to override it.
 ```sh
 rmx tail
 rmx tail codex/feat-example claude/review
-rmx t
 rmx follow
 ```
 

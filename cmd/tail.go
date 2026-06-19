@@ -38,6 +38,7 @@ func init() {
 
 var tailCmd = &cobra.Command{
 	Use:         "tail [session...]",
+	Aliases:     []string{"follow"},
 	Annotations: map[string]string{"group": "Output:"},
 	Short:       "Follow output from rmux sessions",
 	Args:        cobra.ArbitraryArgs,
@@ -48,7 +49,7 @@ var tailCmd = &cobra.Command{
 			return err
 		}
 		return tailSessions(cmd.Context(), cmd.OutOrStdout(), sessions, defaultTailInterval, func(ctx context.Context, name string) (string, error) {
-			return client.CapturePane(ctx, name, defaultCaptureLines)
+			return client.CapturePaneHistory(ctx, name)
 		})
 	},
 }
@@ -96,7 +97,9 @@ func (s *tailState) poll(ctx context.Context, out io.Writer, capture tailCapture
 		}
 		chunk := appendedCapture(s.previous[session.Name], current)
 		s.previous[session.Name] = current
-		renderTailChunk(out, session.Name, index, chunk)
+		if err := renderTailChunk(out, session.Name, index, chunk); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -125,17 +128,20 @@ func longestSuffixPrefixOverlap(previous string, current string) int {
 	return 0
 }
 
-func renderTailChunk(out io.Writer, name string, index int, chunk string) {
+func renderTailChunk(out io.Writer, name string, index int, chunk string) error {
 	chunk = strings.TrimPrefix(chunk, "\n")
 	chunk = strings.TrimRight(chunk, "\n")
 	if chunk == "" {
-		return
+		return nil
 	}
 
 	prefix := tailPrefixStyle(index).Render("[" + name + "]")
 	for _, line := range strings.Split(chunk, "\n") {
-		fmt.Fprintf(out, "%s %s\n", prefix, line)
+		if _, err := fmt.Fprintf(out, "%s %s\n", prefix, line); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func tailPrefixStyle(index int) lipgloss.Style {
