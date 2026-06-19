@@ -69,7 +69,7 @@ func (c Client) CurrentSession(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return strings.TrimSpace(out), nil
+	return strings.TrimRight(out, "\r\n"), nil
 }
 
 func (c Client) AttachSession(ctx context.Context, name string) error {

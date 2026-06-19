@@ -110,15 +110,15 @@ func TestCapturePaneUsesNegativeStartForLineLimit(t *testing.T) {
 }
 
 func TestCurrentSessionUsesDisplayMessage(t *testing.T) {
-	runner := &recordingRunner{output: "codex/task\n"}
+	runner := &recordingRunner{output: " codex/task \n"}
 	client := Client{Binary: "rmux", Runner: runner}
 
 	name, err := client.CurrentSession(context.Background())
 	if err != nil {
 		t.Fatalf("CurrentSession returned error: %v", err)
 	}
-	if name != "codex/task" {
-		t.Fatalf("session name = %q, want codex/task", name)
+	if name != " codex/task " {
+		t.Fatalf("session name = %q, want surrounding spaces preserved", name)
 	}
 
 	wantArgs := []string{"display-message", "-p", "#{session_name}"}
