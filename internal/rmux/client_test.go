@@ -141,6 +141,34 @@ func TestKillSessionTargetsExactName(t *testing.T) {
 	}
 }
 
+func TestSendTextUsesLiteralSendKeys(t *testing.T) {
+	runner := &recordingRunner{}
+	client := Client{Binary: "rmux", Runner: runner}
+
+	if err := client.SendText(context.Background(), "codex/task", "hello Enter"); err != nil {
+		t.Fatalf("SendText returned error: %v", err)
+	}
+
+	wantArgs := []string{"send-keys", "-l", "-t", "codex/task", "hello Enter"}
+	if !reflect.DeepEqual(runner.calls[0].args, wantArgs) {
+		t.Fatalf("args = %v, want %v", runner.calls[0].args, wantArgs)
+	}
+}
+
+func TestSendEnterUsesNamedEnterKey(t *testing.T) {
+	runner := &recordingRunner{}
+	client := Client{Binary: "rmux", Runner: runner}
+
+	if err := client.SendEnter(context.Background(), "codex/task"); err != nil {
+		t.Fatalf("SendEnter returned error: %v", err)
+	}
+
+	wantArgs := []string{"send-keys", "-t", "codex/task", "Enter"}
+	if !reflect.DeepEqual(runner.calls[0].args, wantArgs) {
+		t.Fatalf("args = %v, want %v", runner.calls[0].args, wantArgs)
+	}
+}
+
 type recordingRunner struct {
 	output string
 	err    error

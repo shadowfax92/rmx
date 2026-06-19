@@ -40,6 +40,7 @@ func helpAliases(aliases []string) string {
 var groupOrder = []string{
 	"Sessions:",
 	"Output:",
+	"Input:",
 	"Other:",
 }
 

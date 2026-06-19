@@ -81,6 +81,18 @@ func (c Client) KillSession(ctx context.Context, name string) error {
 	return err
 }
 
+// SendText writes literal text to the target session's active pane.
+func (c Client) SendText(ctx context.Context, name string, text string) error {
+	_, err := c.runner().Run(ctx, c.binary(), "send-keys", "-l", "-t", name, text)
+	return err
+}
+
+// SendEnter presses Enter in the target session's active pane.
+func (c Client) SendEnter(ctx context.Context, name string) error {
+	_, err := c.runner().Run(ctx, c.binary(), "send-keys", "-t", name, "Enter")
+	return err
+}
+
 func (ExecRunner) Run(ctx context.Context, binary string, args ...string) (string, error) {
 	cmd := exec.CommandContext(ctx, binary, args...)
 	out, err := cmd.CombinedOutput()

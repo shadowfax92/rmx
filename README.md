@@ -17,6 +17,7 @@
 - **Exit current session** - `rmx exit` closes the current rmux session from inside its pane and removes it from the list.
 - **Multi-remove** - `rmx rm` opens multi-select fzf when no session names are provided.
 - **Multi-cat** - `rmx cat` selects sessions with fzf and prints each output under a colored separator.
+- **Send input** - `rmx send text` writes literal text, and `rmx send enter` presses Enter in a session.
 - **Line limits** - `rmx cat -l 20` prints the last 20 lines from each selected session.
 - **Plain delegation** - rmx calls rmux directly; it does not keep state of its own.
 
@@ -41,6 +42,8 @@ rmx ls
 rmx attach
 rmx exit
 rmx cat -l 20
+rmx send text -t codex/feat-example 'echo hello from rmx'
+rmx send enter -t codex/feat-example
 rmx rm
 ```
 
@@ -54,6 +57,9 @@ rmx l            # list     (l / ls / list)
 rmx a            # attach   (a / attach)
 rmx e            # exit     (e / exit / quit)
 rmx c            # cat      (c / cat / cap / capture)
+rmx s            # send     (s / send)
+rmx text         # send text
+rmx enter        # send enter
 rmx k            # remove   (rm / k / kill / remove)
 rmx c -l 20      # flags and session names pass through
 rmx --help       # forwarded to the binary
@@ -119,6 +125,29 @@ rmux capture-pane -p -t <session> -S -<lines> -E -1
 ```
 
 The default line count is 80. Use `-l 20` or `--lines 20` to override it.
+
+### Send
+
+```sh
+rmx send text -t codex/feat-example 'echo hello from rmx'
+rmx send enter -t codex/feat-example
+rmx text -t codex/feat-example 'echo shortcut'
+rmx enter -t codex/feat-example
+```
+
+`rmx send text` sends literal text with:
+
+```sh
+rmux send-keys -l -t <session> <text>
+```
+
+`rmx send enter` sends the Enter key with:
+
+```sh
+rmux send-keys -t <session> Enter
+```
+
+Omit `-t/--target` to pick a session with fzf.
 
 ## Make Targets
 
