@@ -17,6 +17,7 @@
 - **Exit current session** - `rmx exit` closes the current rmux session from inside its pane and removes it from the list.
 - **Multi-remove** - `rmx rm` opens multi-select fzf when no session names are provided.
 - **Multi-cat** - `rmx cat` selects sessions with fzf and prints each output under a colored separator.
+- **Multi-tail** - `rmx tail` selects sessions with fzf and follows newly appended output with colored prefixes.
 - **Send input** - `rmx send text` writes literal text, and `rmx send enter` presses Enter in a session.
 - **Line limits** - `rmx cat -l 20` prints the last 20 lines from each selected session.
 - **Plain delegation** - rmx calls rmux directly; it does not keep state of its own.
@@ -42,6 +43,7 @@ rmx ls
 rmx attach
 rmx exit
 rmx cat -l 20
+rmx tail
 rmx send text -t codex/feat-example 'echo hello from rmx'
 rmx send enter -t codex/feat-example
 rmx rm
@@ -57,6 +59,7 @@ rmx l            # list     (l / ls / list)
 rmx a            # attach   (a / attach)
 rmx e            # exit     (e / exit / quit)
 rmx c            # cat      (c / cat / cap / capture)
+rmx t            # tail     (t / tail / follow)
 rmx s            # send     (s / send)
 rmx text         # send text
 rmx enter        # send enter
@@ -125,6 +128,16 @@ rmux capture-pane -p -t <session> -S -<lines> -E -1
 ```
 
 The default line count is 80. Use `-l 20` or `--lines 20` to override it.
+
+### Tail
+
+```sh
+rmx tail
+rmx tail codex/feat-example claude/review
+rmx follow
+```
+
+Without names, `rmx tail` opens fzf in multi-select mode. It treats the first capture as the baseline, then polls every 5 seconds and prints newly appended output with a colored `[session]` prefix for each selected rmux session.
 
 ### Send
 

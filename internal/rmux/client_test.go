@@ -109,6 +109,23 @@ func TestCapturePaneUsesNegativeStartForLineLimit(t *testing.T) {
 	}
 }
 
+func TestCapturePaneHistoryUsesFullHistoryRange(t *testing.T) {
+	runner := &recordingRunner{output: "history"}
+	client := Client{Binary: "rmux", Runner: runner}
+
+	out, err := client.CapturePaneHistory(context.Background(), "codex/task")
+	if err != nil {
+		t.Fatalf("CapturePaneHistory returned error: %v", err)
+	}
+	if out != "history" {
+		t.Fatalf("output = %q, want history", out)
+	}
+	wantArgs := []string{"capture-pane", "-p", "-t", "=codex/task", "-S", "-", "-E", "-1"}
+	if !reflect.DeepEqual(runner.calls[0].args, wantArgs) {
+		t.Fatalf("args = %v, want %v", runner.calls[0].args, wantArgs)
+	}
+}
+
 func TestCurrentSessionUsesDisplayMessage(t *testing.T) {
 	runner := &recordingRunner{output: " codex/task \n"}
 	client := Client{Binary: "rmux", Runner: runner}

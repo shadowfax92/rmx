@@ -41,6 +41,10 @@ var captureCmd = &cobra.Command{
 }
 
 func sessionsForCapture(ctx context.Context, client rmux.Client, args []string) ([]rmux.Session, error) {
+	return sessionsForTargets(ctx, client, args, "cat > ")
+}
+
+func sessionsForTargets(ctx context.Context, client rmux.Client, args []string, prompt string) ([]rmux.Session, error) {
 	sessions, err := client.ListSessions(ctx)
 	if err != nil {
 		return nil, err
@@ -50,7 +54,7 @@ func sessionsForCapture(ctx context.Context, client rmux.Client, args []string) 
 		byName[session.Name] = session
 	}
 	if len(args) == 0 {
-		targets, err := pickSessions(ctx, sessions, "cat > ", true)
+		targets, err := pickSessions(ctx, sessions, prompt, true)
 		if err != nil {
 			return nil, err
 		}
