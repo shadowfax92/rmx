@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -77,6 +78,38 @@ func TestExitCommandIsRegisteredWithAlias(t *testing.T) {
 	}
 	if aliasCmd != cmd {
 		t.Fatalf("alias command = %v, want exit command", aliasCmd)
+	}
+}
+
+func TestFishShortcutsForwardExitVerbsToExit(t *testing.T) {
+	content, err := os.ReadFile("../rmx.fish")
+	if err != nil {
+		t.Fatalf("ReadFile(rmx.fish) returned error: %v", err)
+	}
+	text := string(content)
+	if !strings.Contains(text, "case e exit quit") {
+		t.Fatalf("fish helper missing exit verb cases: %s", text)
+	}
+	if !strings.Contains(text, "command rmx exit $rest") {
+		t.Fatalf("fish helper should forward exit verbs to rmx exit: %s", text)
+	}
+}
+
+func TestReadmeDocumentsExitCommand(t *testing.T) {
+	content, err := os.ReadFile("../README.md")
+	if err != nil {
+		t.Fatalf("ReadFile(README.md) returned error: %v", err)
+	}
+	text := string(content)
+	for _, want := range []string{
+		"rmx exit",
+		"Exit current session",
+		"rmx e",
+		"### Exit",
+	} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("README missing %q", want)
+		}
 	}
 }
 
