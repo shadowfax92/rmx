@@ -65,7 +65,7 @@ func (c Client) CapturePane(ctx context.Context, name string, lineLimit int) (st
 
 // CapturePaneHistory returns the active pane output across the available scrollback.
 func (c Client) CapturePaneHistory(ctx context.Context, name string) (string, error) {
-	return c.runner().Run(ctx, c.binary(), "capture-pane", "-p", "-t", "="+name, "-S", "-", "-E", "-1")
+	return c.runner().Run(ctx, c.binary(), "capture-pane", "-p", "-t", name, "-S", "-", "-E", "-1")
 }
 
 // CurrentSession returns the rmux session attached to the current pane.
