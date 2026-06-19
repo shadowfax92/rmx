@@ -13,7 +13,7 @@ import (
 func TestRunSendTextJoinsTextArgsForTarget(t *testing.T) {
 	client := &fakeSendClient{}
 
-	err := runSendText(context.Background(), client, "codex/task", []string{"hello", "from", "wrapper"})
+	err := runSendText(context.Background(), client, "codex/task", []string{"hello", "from", "session"})
 	if err != nil {
 		t.Fatalf("runSendText returned error: %v", err)
 	}
@@ -21,7 +21,7 @@ func TestRunSendTextJoinsTextArgsForTarget(t *testing.T) {
 	if client.textTarget != "codex/task" {
 		t.Fatalf("text target = %q, want codex/task", client.textTarget)
 	}
-	if client.text != "hello from wrapper" {
+	if client.text != "hello from session" {
 		t.Fatalf("text = %q, want joined text", client.text)
 	}
 	if client.listCalls != 0 {

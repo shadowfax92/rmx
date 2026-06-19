@@ -4,7 +4,7 @@
 
 # rmx
 
-**An fzf-powered wrapper for rmux sessions.**
+**An fzf-powered manager for rmux sessions.**
 
 *List, attach, exit, remove, and print rmux session output without remembering the flags.*
 
@@ -29,7 +29,7 @@
 Requires Go 1.21+, `rmux`, and [fzf](https://github.com/junegunn/fzf). [fish](https://fishshell.com) is optional, for the `rmx` shortcut.
 
 ```sh
-git clone <repo-url> rmx
+git clone https://github.com/shadowfax92/rmx.git
 cd rmx
 make install
 ```

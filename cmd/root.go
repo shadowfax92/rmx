@@ -97,7 +97,7 @@ const usageTemplate = `{{helpHeader "Usage:"}}{{if .Runnable}}
 
 var rootCmd = &cobra.Command{
 	Use:           "rmx",
-	Short:         "fzf-powered rmux session wrapper",
+	Short:         "fzf-powered rmux session manager",
 	Version:       Version,
 	SilenceUsage:  true,
 	SilenceErrors: true,
