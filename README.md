@@ -6,7 +6,7 @@
 
 **An fzf-powered wrapper for rmux sessions.**
 
-*List, attach, remove, and print rmux session output without remembering the flags.*
+*List, attach, exit, remove, and print rmux session output without remembering the flags.*
 
 </div>
 
@@ -14,6 +14,7 @@
 
 - **Session inventory** - `rmx ls` shows every rmux session, window count, exact last-active time, relative age, created time, and attach state.
 - **Fast attach** - `rmx attach` opens an fzf picker with a live capture preview, then attaches to the selected session.
+- **Exit current session** - `rmx exit` closes the current rmux session from inside its pane and removes it from the list.
 - **Multi-remove** - `rmx rm` opens multi-select fzf when no session names are provided.
 - **Multi-cat** - `rmx cat` selects sessions with fzf and prints each output under a colored separator.
 - **Send input** - `rmx send text` writes literal text, and `rmx send enter` presses Enter in a session.
@@ -39,6 +40,7 @@ make install
 ```sh
 rmx ls
 rmx attach
+rmx exit
 rmx cat -l 20
 rmx send text -t codex/feat-example 'echo hello from rmx'
 rmx send enter -t codex/feat-example
@@ -53,6 +55,7 @@ The optional fish function adds short verbs on top of the `rmx` binary. `make in
 rmx              # list sessions (same as rmx ls)
 rmx l            # list     (l / ls / list)
 rmx a            # attach   (a / attach)
+rmx e            # exit     (e / exit / quit)
 rmx c            # cat      (c / cat / cap / capture)
 rmx s            # send     (s / send)
 rmx text         # send text
@@ -83,6 +86,16 @@ rmx a
 ```
 
 Without a session name, `rmx attach` opens fzf. The first hidden fzf field is the rmux session name, while the visible row includes the name, window count, last activity, and attached state.
+
+### Exit
+
+```sh
+rmx exit
+rmx e
+rmx quit
+```
+
+Run from inside an rmux pane to close the current session. The command resolves the current rmux session name and removes that exact session from the list.
 
 ### Remove
 

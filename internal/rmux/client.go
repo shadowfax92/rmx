@@ -63,6 +63,15 @@ func (c Client) CapturePane(ctx context.Context, name string, lineLimit int) (st
 	return c.runner().Run(ctx, c.binary(), args...)
 }
 
+// CurrentSession returns the rmux session attached to the current pane.
+func (c Client) CurrentSession(ctx context.Context) (string, error) {
+	out, err := c.runner().Run(ctx, c.binary(), "display-message", "-p", "#{session_name}")
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimRight(out, "\r\n"), nil
+}
+
 func (c Client) AttachSession(ctx context.Context, name string) error {
 	return c.runner().RunInteractive(ctx, c.binary(), "attach-session", "-t", name)
 }
