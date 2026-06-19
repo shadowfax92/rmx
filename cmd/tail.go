@@ -118,30 +118,67 @@ func appendedCapture(previous string, current string) string {
 	return current
 }
 
+// longestSuffixPrefixOverlap stays linear when full-history snapshots roll over.
 func longestSuffixPrefixOverlap(previous string, current string) int {
-	limit := min(len(previous), len(current))
-	for length := limit; length > 0; length-- {
-		if strings.HasSuffix(previous, current[:length]) {
-			return length
+	if previous == "" || current == "" {
+		return 0
+	}
+	pattern := current
+	if len(pattern) > len(previous) {
+		pattern = pattern[:len(previous)]
+	}
+
+	prefix := make([]int, len(pattern))
+	for i := 1; i < len(pattern); i++ {
+		j := prefix[i-1]
+		for j > 0 && pattern[i] != pattern[j] {
+			j = prefix[j-1]
+		}
+		if pattern[i] == pattern[j] {
+			j++
+		}
+		prefix[i] = j
+	}
+
+	match := 0
+	for i := 0; i < len(previous); i++ {
+		for match > 0 && (match == len(pattern) || previous[i] != pattern[match]) {
+			match = prefix[match-1]
+		}
+		if previous[i] == pattern[match] {
+			match++
 		}
 	}
-	return 0
+	return match
 }
 
 func renderTailChunk(out io.Writer, name string, index int, chunk string) error {
-	chunk = strings.TrimPrefix(chunk, "\n")
-	chunk = strings.TrimRight(chunk, "\n")
-	if chunk == "" {
+	lines := tailChunkLines(chunk)
+	if len(lines) == 0 {
 		return nil
 	}
 
 	prefix := tailPrefixStyle(index).Render("[" + name + "]")
-	for _, line := range strings.Split(chunk, "\n") {
+	for _, line := range lines {
 		if _, err := fmt.Fprintf(out, "%s %s\n", prefix, line); err != nil {
 			return err
 		}
 	}
 	return nil
+}
+
+func tailChunkLines(chunk string) []string {
+	chunk = strings.TrimPrefix(chunk, "\n")
+	if chunk == "" {
+		return nil
+	}
+	if strings.HasSuffix(chunk, "\n") {
+		chunk = strings.TrimSuffix(chunk, "\n")
+	}
+	if chunk == "" {
+		return []string{""}
+	}
+	return strings.Split(chunk, "\n")
 }
 
 func tailPrefixStyle(index int) lipgloss.Style {

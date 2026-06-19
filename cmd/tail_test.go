@@ -107,6 +107,31 @@ func TestTailStateReturnsWriteErrors(t *testing.T) {
 	}
 }
 
+func TestRenderTailChunkPreservesIntentionalBlankLines(t *testing.T) {
+	var buf bytes.Buffer
+
+	err := renderTailChunk(&buf, "codex/task", 0, "line\n\n")
+	if err != nil {
+		t.Fatalf("renderTailChunk returned error: %v", err)
+	}
+
+	got := buf.String()
+	if strings.Count(got, "[codex/task]") != 2 {
+		t.Fatalf("tail output = %q, want line plus one blank prefixed line", got)
+	}
+	if !strings.Contains(got, "[codex/task] \n") {
+		t.Fatalf("tail output = %q, want prefixed blank line", got)
+	}
+}
+
+func TestAppendedCaptureUsesOverlapWhenScrollbackRolls(t *testing.T) {
+	got := appendedCapture("one\ntwo\nthree", "two\nthree\nfour")
+
+	if got != "\nfour" {
+		t.Fatalf("appendedCapture = %q, want rolled-over suffix", got)
+	}
+}
+
 func TestTailPrefixColorsAreDeterministicAndDistinct(t *testing.T) {
 	if tailPrefixColor(0) != tailPrefixColor(len(tailPrefixColors)) {
 		t.Fatalf("color cycle did not wrap deterministically")
