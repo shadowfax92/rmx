@@ -111,11 +111,38 @@ func appendedCapture(previous string, current string) string {
 	if strings.HasPrefix(current, previous) {
 		return strings.TrimPrefix(current, previous)
 	}
-	overlap := longestSuffixPrefixOverlap(previous, current)
+	overlap := trustedOverlap(previous, current)
 	if overlap > 0 {
 		return current[overlap:]
 	}
 	return current
+}
+
+// trustedOverlap accepts rollover matches only when complete lines make a reset unlikely.
+func trustedOverlap(previous string, current string) int {
+	overlap := longestSuffixPrefixOverlap(previous, current)
+	if overlap == 0 || !isCompleteLineOverlap(previous, current, overlap) {
+		return 0
+	}
+	if overlapLineCount(current[:overlap]) < 2 {
+		return 0
+	}
+	return overlap
+}
+
+func isCompleteLineOverlap(previous string, current string, overlap int) bool {
+	previousStart := len(previous) - overlap
+	if previousStart > 0 && previous[previousStart-1] != '\n' {
+		return false
+	}
+	return overlap == len(current) || current[overlap] == '\n'
+}
+
+func overlapLineCount(text string) int {
+	if text == "" {
+		return 0
+	}
+	return strings.Count(text, "\n") + 1
 }
 
 // longestSuffixPrefixOverlap stays linear when full-history snapshots roll over.

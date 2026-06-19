@@ -120,7 +120,7 @@ func TestCapturePaneHistoryUsesFullHistoryRange(t *testing.T) {
 	if out != "history" {
 		t.Fatalf("output = %q, want history", out)
 	}
-	wantArgs := []string{"capture-pane", "-p", "-t", "codex/task", "-S", "-", "-E", "-1"}
+	wantArgs := []string{"capture-pane", "-p", "-t", "=codex/task", "-S", "-", "-E", "-1"}
 	if !reflect.DeepEqual(runner.calls[0].args, wantArgs) {
 		t.Fatalf("args = %v, want %v", runner.calls[0].args, wantArgs)
 	}

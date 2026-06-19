@@ -132,6 +132,14 @@ func TestAppendedCaptureUsesOverlapWhenScrollbackRolls(t *testing.T) {
 	}
 }
 
+func TestAppendedCaptureTreatsSingleLineOverlapAsReset(t *testing.T) {
+	got := appendedCapture("old screen\nready", "ready\nnew screen")
+
+	if got != "ready\nnew screen" {
+		t.Fatalf("appendedCapture = %q, want full reset snapshot", got)
+	}
+}
+
 func TestTailPrefixColorsAreDeterministicAndDistinct(t *testing.T) {
 	if tailPrefixColor(0) != tailPrefixColor(len(tailPrefixColors)) {
 		t.Fatalf("color cycle did not wrap deterministically")
