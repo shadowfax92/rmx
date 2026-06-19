@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"context"
+	"os"
 	"strings"
 	"testing"
 
@@ -91,6 +92,35 @@ func TestTailPrefixColorsAreDeterministicAndDistinct(t *testing.T) {
 	}
 	if tailPrefixColor(0) == tailPrefixColor(1) {
 		t.Fatalf("first two tail prefix colors should differ")
+	}
+}
+
+func TestFishShortcutsForwardTailVerbs(t *testing.T) {
+	content, err := os.ReadFile("../rmx.fish")
+	if err != nil {
+		t.Fatalf("ReadFile(rmx.fish) returned error: %v", err)
+	}
+	text := string(content)
+
+	if !strings.Contains(text, "case t tail follow") {
+		t.Fatalf("fish helper missing tail verb cases: %s", text)
+	}
+	if !strings.Contains(text, "command rmx tail $rest") {
+		t.Fatalf("fish helper should forward tail verbs to rmx tail: %s", text)
+	}
+}
+
+func TestReadmeDocumentsTail(t *testing.T) {
+	content, err := os.ReadFile("../README.md")
+	if err != nil {
+		t.Fatalf("ReadFile(README.md) returned error: %v", err)
+	}
+	text := string(content)
+
+	for _, want := range []string{"rmx tail", "polls every 5 seconds"} {
+		if !strings.Contains(text, want) {
+			t.Fatalf("README missing %q", want)
+		}
 	}
 }
 
