@@ -30,9 +30,12 @@ func TestRunSendTextJoinsTextArgsForTarget(t *testing.T) {
 }
 
 func TestRunSendTextPicksTargetWhenTargetMissing(t *testing.T) {
-	installFakeFzf(t, "picked/task")
+	called := installFakeFzf(t, "picked/task")
 	client := &fakeSendClient{
-		sessions: []rmux.Session{{Name: "picked/task", Windows: 1}},
+		sessions: []rmux.Session{
+			{Name: "first/task", Windows: 1},
+			{Name: "picked/task", Windows: 1},
+		},
 	}
 
 	err := runSendText(context.Background(), client, "", []string{"hello", "from", "picker"})
@@ -40,6 +43,9 @@ func TestRunSendTextPicksTargetWhenTargetMissing(t *testing.T) {
 		t.Fatalf("runSendText returned error: %v", err)
 	}
 
+	if _, err := os.Stat(called); err != nil {
+		t.Fatalf("fake fzf marker stat returned error: %v", err)
+	}
 	if client.listCalls != 1 {
 		t.Fatalf("ListSessions called %d times, want 1", client.listCalls)
 	}
@@ -77,9 +83,12 @@ func TestRunSendEnterTargetsSession(t *testing.T) {
 }
 
 func TestRunSendEnterPicksTargetWhenTargetMissing(t *testing.T) {
-	installFakeFzf(t, "picked/task")
+	called := installFakeFzf(t, "picked/task")
 	client := &fakeSendClient{
-		sessions: []rmux.Session{{Name: "picked/task", Windows: 1}},
+		sessions: []rmux.Session{
+			{Name: "first/task", Windows: 1},
+			{Name: "picked/task", Windows: 1},
+		},
 	}
 
 	err := runSendEnter(context.Background(), client, "")
@@ -87,6 +96,9 @@ func TestRunSendEnterPicksTargetWhenTargetMissing(t *testing.T) {
 		t.Fatalf("runSendEnter returned error: %v", err)
 	}
 
+	if _, err := os.Stat(called); err != nil {
+		t.Fatalf("fake fzf marker stat returned error: %v", err)
+	}
 	if client.listCalls != 1 {
 		t.Fatalf("ListSessions called %d times, want 1", client.listCalls)
 	}
@@ -183,19 +195,24 @@ func (f *fakeSendClient) SendEnter(ctx context.Context, target string) error {
 	return nil
 }
 
-func installFakeFzf(t *testing.T, selected string) {
+func installFakeFzf(t *testing.T, selected string) string {
 	t.Helper()
 
 	dir := t.TempDir()
 	path := filepath.Join(dir, "fzf")
+	marker := filepath.Join(dir, "called")
 	script := "#!/bin/sh\n" +
 		"input=$(cat)\n" +
+		": > \"$RMX_FAKE_FZF_MARKER\"\n" +
 		"case \"$input\" in\n" +
-		"  *\"" + selected + "\"*) printf '" + selected + "\t" + selected + "\t1 windows\t1m ago\tdetached\n' ;;\n" +
+		"  *\"$RMX_FAKE_FZF_SELECTED\"*) printf '%s\t%s\t1 windows\t1m ago\tdetached\n' \"$RMX_FAKE_FZF_SELECTED\" \"$RMX_FAKE_FZF_SELECTED\" ;;\n" +
 		"  *) echo 'missing selected session in picker input' >&2; exit 2 ;;\n" +
 		"esac\n"
 	if err := os.WriteFile(path, []byte(script), 0o755); err != nil {
 		t.Fatalf("WriteFile(fake fzf) returned error: %v", err)
 	}
+	t.Setenv("RMX_FAKE_FZF_MARKER", marker)
+	t.Setenv("RMX_FAKE_FZF_SELECTED", selected)
 	t.Setenv("PATH", dir+string(os.PathListSeparator)+os.Getenv("PATH"))
+	return marker
 }
