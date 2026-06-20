@@ -7,6 +7,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/spf13/cobra"
+
 	"rmx/internal/rmux"
 )
 
@@ -122,6 +124,30 @@ func TestSendCommandHasTextAndEnterSubcommands(t *testing.T) {
 	}
 }
 
+func TestSendHelpDocumentsTargetlessPicker(t *testing.T) {
+	textHelp := commandHelp(t, sendTextCmd)
+	for _, want := range []string{
+		"Omit -t/--target to choose a session with fzf.",
+		"rmx send text 'echo hello from rmx'",
+		"rmx send text -t codex/feat-example",
+	} {
+		if !strings.Contains(textHelp, want) {
+			t.Fatalf("send text help = %q, want %q", textHelp, want)
+		}
+	}
+
+	enterHelp := commandHelp(t, sendEnterCmd)
+	for _, want := range []string{
+		"Omit -t/--target to choose a session with fzf.",
+		"rmx send enter",
+		"rmx send enter -t codex/feat-example",
+	} {
+		if !strings.Contains(enterHelp, want) {
+			t.Fatalf("send enter help = %q, want %q", enterHelp, want)
+		}
+	}
+}
+
 func TestRootHelpIncludesInputGroup(t *testing.T) {
 	help := groupedHelp(rootCmd)
 
@@ -193,6 +219,23 @@ func (f *fakeSendClient) SendText(ctx context.Context, target string, text strin
 func (f *fakeSendClient) SendEnter(ctx context.Context, target string) error {
 	f.enterTarget = target
 	return nil
+}
+
+func commandHelp(t *testing.T, cmd *cobra.Command) string {
+	t.Helper()
+
+	var out strings.Builder
+	cmd.SetOut(&out)
+	cmd.SetErr(&out)
+	t.Cleanup(func() {
+		cmd.SetOut(nil)
+		cmd.SetErr(nil)
+	})
+
+	if err := cmd.Help(); err != nil {
+		t.Fatalf("Help returned error: %v", err)
+	}
+	return out.String()
 }
 
 func installFakeFzf(t *testing.T, selected string) string {
