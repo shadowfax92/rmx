@@ -30,12 +30,22 @@ var sendCmd = &cobra.Command{
 	Aliases:     []string{"s"},
 	Annotations: map[string]string{"group": "Input:"},
 	Short:       "Send input to an rmux session",
+	Long:        "Send input to an rmux session. Omit -t/--target to choose a session with fzf.",
+	Example: strings.TrimSpace(`
+rmx send text 'echo hello from rmx'
+rmx send enter
+rmx send text -t codex/feat-example 'echo direct'`),
 }
 
 var sendTextCmd = &cobra.Command{
 	Use:   "text [text...]",
 	Short: "Send literal text to an rmux session",
-	Args:  cobra.MinimumNArgs(1),
+	Long:  "Send literal text to an rmux session. Omit -t/--target to choose a session with fzf.",
+	Example: strings.TrimSpace(`
+rmx send text 'echo hello from rmx'
+rmx send text -t codex/feat-example 'echo direct'
+rmx text 'echo shortcut'`),
+	Args: cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runSendText(cmd.Context(), rmux.DefaultClient(), sendTarget, args)
 	},
@@ -44,7 +54,12 @@ var sendTextCmd = &cobra.Command{
 var sendEnterCmd = &cobra.Command{
 	Use:   "enter",
 	Short: "Press Enter in an rmux session",
-	Args:  cobra.NoArgs,
+	Long:  "Press Enter in an rmux session. Omit -t/--target to choose a session with fzf.",
+	Example: strings.TrimSpace(`
+rmx send enter
+rmx send enter -t codex/feat-example
+rmx enter`),
+	Args: cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return runSendEnter(cmd.Context(), rmux.DefaultClient(), sendTarget)
 	},
