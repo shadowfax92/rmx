@@ -21,6 +21,8 @@ function rmx --description 'rmx: short-verb shortcuts'
             command rmx send $argv
         case e exit quit
             command rmx exit $rest
+        case clr clear
+            command rmx clear $rest
         case rm k kill remove
             command rmx rm $rest
         case '*'

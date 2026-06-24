@@ -13,8 +13,18 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+// defaultPreviewCmd previews a live rmux pane; the empty result for an exited
+// session is why the cat picker uses catPreviewCmd instead.
+const defaultPreviewCmd = "rmux capture-pane -p -t {1} -S -80 -E -1 2>/dev/null"
+
 // pickSessions shows the rmux session inventory in fzf and returns selected names.
 func pickSessions(ctx context.Context, sessions []rmux.Session, prompt string, multi bool) ([]string, error) {
+	return pickSessionsPreview(ctx, sessions, prompt, multi, defaultPreviewCmd)
+}
+
+// pickSessionsPreview is pickSessions with a caller-chosen fzf preview command,
+// so the cat picker can preview exited sessions via `rmx cat`.
+func pickSessionsPreview(ctx context.Context, sessions []rmux.Session, prompt string, multi bool, preview string) ([]string, error) {
 	if len(sessions) == 0 {
 		return nil, fmt.Errorf("no rmux sessions")
 	}
@@ -25,7 +35,7 @@ func pickSessions(ctx context.Context, sessions []rmux.Session, prompt string, m
 		"--reverse",
 		"--delimiter", "\t",
 		"--with-nth", "2..",
-		"--preview", "rmux capture-pane -p -t {1} -S -80 -E -1 2>/dev/null",
+		"--preview", preview,
 		"--preview-window", "right:60%",
 	}
 	if multi {
@@ -70,19 +80,14 @@ func parseFzfTargets(out string) ([]string, error) {
 func sessionPickerLines(sessions []rmux.Session, now time.Time) []string {
 	nameStyle := lipglossStyle().Bold(true)
 	dim := lipglossStyle().Faint(true)
-	attachedStyle := lipglossStyle().Foreground(clrYellow)
 	lines := make([]string, 0, len(sessions))
 	for _, session := range sessions {
-		attached := dim.Render("detached")
-		if session.Attached {
-			attached = attachedStyle.Render("attached")
-		}
 		line := fmt.Sprintf("%s\t%s\t%d windows\t%s\t%s",
 			session.Name,
 			nameStyle.Render(session.Name),
 			session.Windows,
 			relativeAge(session.LastActiveAt, now)+" "+dim.Render(formatTimestamp(session.LastActiveAt)),
-			attached,
+			renderState(session),
 		)
 		lines = append(lines, line)
 	}

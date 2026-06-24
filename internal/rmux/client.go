@@ -19,6 +19,8 @@ type Session struct {
 	Attached     bool
 	CreatedAt    time.Time
 	LastActiveAt time.Time
+	// Exited marks a session rmx recorded on exit; rmux no longer knows it.
+	Exited bool
 }
 
 type Runner interface {
