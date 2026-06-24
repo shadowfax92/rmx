@@ -70,19 +70,14 @@ func parseFzfTargets(out string) ([]string, error) {
 func sessionPickerLines(sessions []rmux.Session, now time.Time) []string {
 	nameStyle := lipglossStyle().Bold(true)
 	dim := lipglossStyle().Faint(true)
-	attachedStyle := lipglossStyle().Foreground(clrYellow)
 	lines := make([]string, 0, len(sessions))
 	for _, session := range sessions {
-		attached := dim.Render("detached")
-		if session.Attached {
-			attached = attachedStyle.Render("attached")
-		}
 		line := fmt.Sprintf("%s\t%s\t%d windows\t%s\t%s",
 			session.Name,
 			nameStyle.Render(session.Name),
 			session.Windows,
 			relativeAge(session.LastActiveAt, now)+" "+dim.Render(formatTimestamp(session.LastActiveAt)),
-			attached,
+			renderState(session),
 		)
 		lines = append(lines, line)
 	}

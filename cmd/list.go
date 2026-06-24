@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"rmx/internal/rmux"
+	"rmx/internal/store"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
@@ -21,15 +22,18 @@ var listCmd = &cobra.Command{
 	Annotations: map[string]string{"group": "Sessions:"},
 	Short:       "List rmux sessions",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		sessions, err := rmux.DefaultClient().ListSessions(cmd.Context())
+		now := time.Now()
+		live, err := rmux.DefaultClient().ListSessions(cmd.Context())
 		if err != nil {
 			return err
 		}
+		exited := loadExited(store.Default(), now, cmd.ErrOrStderr())
+		sessions := mergeSessions(live, exited)
 		if len(sessions) == 0 {
 			fmt.Fprintln(cmd.OutOrStdout(), "No rmux sessions.")
 			return nil
 		}
-		fmt.Fprintln(cmd.OutOrStdout(), renderSessionTable(sessions, time.Now()))
+		fmt.Fprintln(cmd.OutOrStdout(), renderSessionTable(sessions, now))
 		return nil
 	},
 }
@@ -41,17 +45,13 @@ func renderSessionTable(sessions []rmux.Session, now time.Time) string {
 
 	rows := make([][]string, 0, len(sessions))
 	for _, session := range sessions {
-		attached := dim.Render("detached")
-		if session.Attached {
-			attached = lipgloss.NewStyle().Foreground(clrYellow).Render("attached")
-		}
 		rows = append(rows, []string{
 			nameStyle.Render(session.Name),
 			fmt.Sprintf("%d", session.Windows),
 			activeStyle.Render(formatTimestamp(session.LastActiveAt)),
 			relativeAge(session.LastActiveAt, now),
 			dim.Render(session.CreatedAt.Format("Jan 02 15:04")),
-			attached,
+			renderState(session),
 		})
 	}
 
@@ -67,6 +67,19 @@ func renderSessionTable(sessions []rmux.Session, now time.Time) string {
 			return s
 		}).
 		String()
+}
+
+// renderState styles a session's STATE cell: exited (red), attached (yellow),
+// or detached (dim). Shared by the list table and the fzf picker.
+func renderState(session rmux.Session) string {
+	switch {
+	case session.Exited:
+		return lipgloss.NewStyle().Foreground(clrRed).Render("exited")
+	case session.Attached:
+		return lipgloss.NewStyle().Foreground(clrYellow).Render("attached")
+	default:
+		return lipgloss.NewStyle().Faint(true).Render("detached")
+	}
 }
 
 const timestampLayout = "Jan 02 15:04"

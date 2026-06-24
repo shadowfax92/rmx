@@ -28,3 +28,20 @@ func TestRenderSessionTableIncludesLastActiveTimestamp(t *testing.T) {
 		t.Fatalf("table %q missing relative age", table)
 	}
 }
+
+func TestRenderSessionTableShowsExitedState(t *testing.T) {
+	sessions := []rmux.Session{
+		{Name: "codex/live", Windows: 1, LastActiveAt: time.Unix(1700000300, 0)},
+		{Name: "codex/gone", Windows: 1, Exited: true, LastActiveAt: time.Unix(1700000100, 0)},
+	}
+	now := time.Unix(1700000600, 0)
+
+	table := renderSessionTable(sessions, now)
+
+	if !strings.Contains(table, "exited") {
+		t.Fatalf("table %q missing exited state", table)
+	}
+	if !strings.Contains(table, "detached") {
+		t.Fatalf("table %q missing detached state for live session", table)
+	}
+}
