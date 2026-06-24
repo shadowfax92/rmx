@@ -12,15 +12,16 @@
 
 `rmx` keeps the rmux command surface close by: it lists sessions with last activity, opens fzf for interactive selection, removes selected sessions, and prints clearly separated output from one or more sessions.
 
-- **Session inventory** - `rmx ls` shows every rmux session, window count, exact last-active time, relative age, created time, and attach state.
+- **Session inventory** - `rmx ls` shows every rmux session, window count, exact last-active time, relative age, created time, and state.
 - **Fast attach** - `rmx attach` opens an fzf picker with a live capture preview, then attaches to the selected session.
-- **Exit current session** - `rmx exit` closes the current rmux session from inside its pane and removes it from the list.
+- **Exit current session** - `rmx exit` saves the session's final output, marks it `exited`, then closes it from inside its pane.
+- **Exited history** - exited sessions linger in `rmx ls` as `exited` for ~a day so you can see what closed; `rmx cat` replays their last output and `rmx clear` purges them.
 - **Multi-remove** - `rmx rm` opens multi-select fzf when no session names are provided.
 - **Multi-cat** - `rmx cat` selects sessions with fzf and prints each output under a colored separator.
 - **Multi-tail** - `rmx tail` selects sessions with fzf and follows newly appended output with colored prefixes.
 - **Send input** - `rmx send text` writes literal text, and `rmx send enter` presses Enter in a session.
 - **Line limits** - `rmx cat -l 20` prints the last 20 lines from each selected session.
-- **Plain delegation** - rmx calls rmux directly; it does not keep state of its own.
+- **Light sidecar state** - rmx delegates to rmux for live sessions and keeps only a small record of exited ones under `~/.local/state/rmx` (honors `XDG_STATE_HOME`).
 
 ---
 
@@ -47,6 +48,7 @@ rmx tail
 rmx send text -t codex/feat-example 'echo hello from rmx'
 rmx send enter -t codex/feat-example
 rmx rm
+rmx clear
 ```
 
 ## Fish shortcuts
@@ -64,6 +66,7 @@ rmx s            # send     (s / send)
 rmx text         # send text
 rmx enter        # send enter
 rmx k            # remove   (rm / k / kill / remove)
+rmx clr          # clear exited records (clr / clear)
 rmx c -l 20      # flags and session names pass through
 rmx --help       # forwarded to the binary
 ```
@@ -78,7 +81,7 @@ rmx list
 rmx l
 ```
 
-Shows all rmux sessions, sorted by most recent `#{session_activity}` first.
+Shows all rmux sessions, sorted by most recent `#{session_activity}` first. The `STATE` column reads `attached`, `detached`, or `exited`. Recently exited sessions (closed with `rmx exit`) interleave by recency and stay listed as `exited` for ~a day; clear them early with `rmx clear`.
 
 ### Attach
 
@@ -98,7 +101,7 @@ rmx e
 rmx quit
 ```
 
-Run from inside an rmux pane to close the current session. The command resolves the current rmux session name and removes that exact session from the list.
+Run from inside an rmux pane to close the current session. Before killing it, `rmx` captures the pane's last 1000 lines and records the session (name, window count, created/exit time) to its sidecar store, so the session lingers as `exited` in `rmx ls` for ~a day and stays replayable with `rmx cat`. Recording is best-effort — a capture or store failure warns but never blocks the kill.
 
 ### Remove
 
@@ -110,6 +113,15 @@ rmx kill
 ```
 
 Without names, `rmx rm` opens fzf in multi-select mode. Selected sessions are removed with `rmux kill-session -t =<session>`.
+
+### Clear
+
+```sh
+rmx clear
+rmx clr
+```
+
+Purges every recorded exited session — metadata and captured logs — and reports how many were cleared. It touches only the exited sidecar records; live detached sessions are left alone (use `rmx rm` for those). Exited records also expire on their own after ~a day, so clearing is just for tidying up early.
 
 ### Cat
 
@@ -128,6 +140,8 @@ rmux capture-pane -p -t <session> -S -<lines> -E -1
 ```
 
 The default line count is 80. Use `-l 20` or `--lines 20` to override it.
+
+Exited sessions appear in the `rmx cat` picker too. For those, `rmx` replays the output captured at exit (under an `exited` header) instead of capturing a live pane, so you can review what a session was doing when it closed.
 
 ### Tail
 
@@ -175,4 +189,4 @@ make clean
 
 ## Notes
 
-`rmx` gets last activity from rmux's `#{session_activity}` format field. It does not infer activity from captured output or maintain a sidecar timestamp database.
+For live sessions, `rmx` gets last activity from rmux's `#{session_activity}` format field. Exited sessions are the one piece of state `rmx` keeps of its own: a small per-session sidecar (metadata plus the last 1000 captured lines) under `~/.local/state/rmx/exited` (or `$XDG_STATE_HOME/rmx/exited`), pruned automatically after ~a day. Each exit writes its own file, so concurrent exits never clobber a shared index.
